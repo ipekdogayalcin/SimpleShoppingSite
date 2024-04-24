@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  My Cart
+{% endblock title %}
+
+{% block content %}
+  <!-- My Cart Page Content -->
+  <div id="my-cart-page">
+    <h2>My Cart</h2>
+    <!-- Check if cart is empty -->
+    {% if cart_products %}
+      <div class="product-listing">
+        <!-- Cart Products will be dynamically added here -->
+        {% for product in cart_products %}
+          <div class="product-entry" data-product-id="{{ product.id }}">
+            <img src="{{ product.image_url }}" alt="Product Image">
+            <div class="product-details">
+              <p>{{ product.color }} {{ product.material }} {{ product.item_type }}</p>
+              <p>Price: ${{ product.price }}</p>
+              <p>Quantity: {{ product.quantity }}</p> <!-- Display product quantity -->
+              <form method="POST" action="{% url 'remove_from_cart' product.id %}" class="remove-from-cart-form">
+                {% csrf_token %}
+                <button type="submit" class="remove-from-cart-button">Remove from Cart</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="total-price">
+        <p>Total Price: ${{ total_price }}</p>
+      </div>
+      <!-- Display error messages if any -->
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="alert alert-danger" role="alert">
+            {{ message }}
+          </div>
+        {% endif %}
+      {% endfor %}
+      <!-- Purchase Form -->
+      <form id="purchase-form" method="post" action="{% url 'purchases' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_shipping_address">Shipping Address:</label>
+          <input type="text" name="shipping_address" id="id_shipping_address" placeholder="Shipping Address">
+        </div>
+        <div class="form-group">
+          <label for="id_card_credentials">Card Credentials:</label>
+          <input type="text" name="card_credentials" id="id_card_credentials" placeholder="Card Credentials" pattern="[0-9]{16}" maxlength="16">
+        </div>
+        <div class="form-group">
+          <label for="id_expiry_month">Expiry Date:</label>
+          <div class="expiry-date-inputs">
+            <input type="text" name="expiry_month" id="id_expiry_month" placeholder="MM" maxlength="2">
+            <span>/</span>
+            <input type="text" name="expiry_year" id="id_expiry_year" placeholder="YY" maxlength="2">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="id_cvc">CVC:</label>
+          <input type="text" name="cvc" id="id_cvc" placeholder="CVC" maxlength="3">
+        </div>
+        <!-- Hidden input fields for products -->
+        {% for product in cart_products %}
+          <input type="hidden" name="products" value="{{ product.id }}">
+        {% endfor %}
+        <button type="submit">Purchase</button>
+      </form>
+    {% else %}
+      <!-- Display message when cart is empty -->
+      <p>Your cart is empty. Time to go shopping :)</p>
+    {% endif %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // AJAX POST request to remove from cart
+      $('.remove-from-cart-form').submit(function (event) {
+        event.preventDefault(); // Prevent default form submission
+        var formData = $(this).serialize(); // Serialize form data
+
+        // AJAX POST request to remove the product from cart
+        $.ajax({
+          url: $(this).attr('action'),
+          type: $(this).attr('method'),
+          data: formData,
+          success: function (response) {
+            // Reload the page to update total price
+            location.reload();
+          },
+          error: function (xhr, status, error) {
+            // Handle errors
+          }
+        });
+      });
+    });
+  </script>
+
+
+  <style>
+    /* CSS for product listing, purchase form, and form inputs */
+    .product-listing {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between; /* Distribute items evenly */
+      gap: 20px; /* Adjust the gap between items as needed */
+    }
+
+    .product-entry {
+      flex: 1 0 calc(20% - 20px); /* Adjust the flex-basis to control the width of each product */
+      margin: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .product-entry img {
+      max-width: 250px; /* Increase the maximum width of the image */
+      height: auto; /* Maintain the aspect ratio of the image */
+      border-radius: 5px;
+    }
+
+    .remove-from-cart-button {
+      background-color: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .remove-from-cart-button:hover {
+      background-color: #cc0000;
+    }
+
+    .total-price {
+      margin-top: 20px;
+    }
+
+    #purchase-form .form-group {
+      margin-bottom: 15px;
+    }
+
+    #purchase-form label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    #purchase-form input[type="text"],
+    #purchase-form input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .expiry-date-inputs {
+      display: flex;
+      align-items: center;
+    }
+
+    .expiry-date-inputs input {
+      width: 40px; /* Adjust the width of each input */
+      margin-right: 5px; /* Adjust the gap between inputs */
+    }
+
+    #id_expiry_date::-webkit-calendar-picker-indicator {
+      background-color: #ffffff !important; /* Set background color to white */
+    }
+
+    #purchase-form button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    #purchase-form button:hover {
+      background-color: #0056b3;
+    }
+
+    #purchase-form p {
+      margin-bottom: 10px;
+    }
+
+    .alert {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+  </style>
+{% endblock content %}

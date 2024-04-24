@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Purchases
+{% endblock title %}
+
+{% block content %}
+
+  <h2>Purchases</h2>
+  <div class="purchase-listing">
+    {% if purchases %}
+
+      {% for purchase in purchases %}
+        <div class="purchase-entry">
+          <p>Date of Purchase: {{ purchase.purchase_date }}</p>
+          <p>Shipping Address: {{ purchase.shipping_address }}</p>
+          <div class="product-list">
+
+            {% for product in purchase.products.all %}
+              <div class="product-item">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-width: 100px;">
+                <p>{{ product.name }}</p>
+                <p>Price: ${{ product.price }}</p>
+                <p>Quantity: {{ product.quantity }}</p>
+              </div>
+            {% endfor %}
+          </div>
+          <p>Total Price: ${{ purchase.total_price }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>You haven't made any purchases yet.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    // Function to display messages
+    function displayMessage(message, type) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('alert');
+      messageElement.classList.add(`alert-${type}`);
+      messageElement.innerText = message;
+
+      const purchaseListing = document.querySelector('.purchase-listing');
+      purchaseListing.insertBefore(messageElement, purchaseListing.firstChild);
+
+      // Remove the message after 5 seconds
+      setTimeout(() => {
+        messageElement.remove();
+      }, 5000);
+    }
+
+    // Check if there's a success message in the session and display it
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          displayMessage("{{ message }}", "success");
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </script>
+
+  <style>
+    /* CSS for content layout */
+    .purchase-entry {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 20px;
+    }
+    .purchase-entry p {
+      margin-bottom: 10px;
+    }
+    .product-list {
+      display: flex; /* Display products horizontally */
+      flex-wrap: wrap; /* Allow wrapping to next line */
+    }
+    .product-item {
+      margin-right: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .product-item img {
+      margin-bottom: 10px;
+    }
+
+    /* CSS for displaying messages */
+    .alert {
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+  </style>
+{% endblock content %}

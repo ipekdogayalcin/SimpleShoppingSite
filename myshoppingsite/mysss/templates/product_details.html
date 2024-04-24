@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="product-details">
+  <h1 id="product_header">{{ product.name }}</h1> <!-- Dynamic header -->
+  <img class="product-image" src="{{ product.image_url }}" alt="Product Image">
+  <div class="product-info">
+    <p><strong>Item Type:</strong> <span id="item_type">{{ product.item_type }}</span></p>
+    <p><strong>Color:</strong> <span id="color">{{ product.color }}</span></p>
+    <p><strong>Material:</strong> <span id="material">{{ product.material }}</span></p>
+    <p><strong>Price:</strong> $<span id="price">{{ product.price }}</span></p>
+    <p><strong>Stock:</strong> <span id="stock">{{ product.stock }}</span></p>
+  </div>
+  <h2>Change Product Attributes:</h2>
+  <form id="updateProductForm" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <div class="form-group">
+      <label for="id_item_type">Item Type:</label>
+      <input type="text" name="item_type" id="id_item_type" value="{{ product.item_type }}">
+    </div>
+    <div class="form-group">
+      <label for="id_color">Color:</label>
+      <input type="text" name="color" id="id_color" value="{{ product.color }}">
+    </div>
+    <div class="form-group">
+      <label for="id_material">Material:</label>
+      <input type="text" name="material" id="id_material" value="{{ product.material }}">
+    </div>
+    <div class="form-group">
+      <label for="id_stock">Stock:</label>
+      <input type="number" name="stock" id="id_stock" value="{{ product.stock }}">
+    </div>
+    <div class="form-group">
+      <label for="id_price">Price:</label>
+      <input type="number" name="price" id="id_price" value="{{ product.price }}">
+    </div>
+    <button type="submit">Update</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('updateProductForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const formData = new FormData(this);
+
+  const product_id = formData.get('product_id');
+
+  fetch(`/update_product/${product_id}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+    body: formData,
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      // Update product details directly without showing an alert
+      document.getElementById('item_type').innerText = data.product.item_type;
+      document.getElementById('color').innerText = data.product.color;
+      document.getElementById('material').innerText = data.product.material;
+      document.getElementById('stock').innerText = data.product.stock;
+      document.getElementById('price').innerText = data.product.price;
+
+      // Update the header above the product image
+      document.getElementById('product_header').innerText = data.product.name;
+
+      // Display success message
+      displayMessage('Product updated successfully.', 'success');
+    } else {
+      alert('Failed to update product.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+});
+
+// Function to display messages
+function displayMessage(message, type) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('alert');
+  messageElement.classList.add(`alert-${type}`);
+  messageElement.innerText = message;
+
+  const productDetails = document.querySelector('.product-details');
+  productDetails.insertBefore(messageElement, productDetails.firstChild);
+
+  // Remove the message after 5 seconds
+  setTimeout(() => {
+    messageElement.remove();
+  }, 5000);
+}
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const trimmedCookie = cookie.trim();
+      if (trimmedCookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(trimmedCookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+
+<style>
+  /* CSS for product details styling */
+  .product-details {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .product-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .product-info {
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  /* CSS for displaying messages */
+  .alert {
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+
+  .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+</style>
+{% endblock %}

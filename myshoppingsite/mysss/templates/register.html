@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block content %}
+<div id="acc">
+    <h2>Register & Create A New Customer!</h2>
+    <hr>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="id_username">Username:</label>
+            <input type="text" name="username" id="id_username" required>
+        </div>
+        <div>
+            <label for="id_password">Password:</label>
+            <input type="password" name="password" id="id_password" required>
+        </div>
+        <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Login Here</a></p>
+</div>
+
+<style>
+    /* Reset default browser styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Body styles */
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    /* Main content styles */
+    #acc {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #acc h2 {
+        margin-bottom: 10px;
+    }
+
+    #acc hr {
+        margin-bottom: 20px;
+    }
+
+    #acc label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    #acc input[type="text"],
+    #acc input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    #acc button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    #acc button:hover {
+        background-color: #0056b3;
+    }
+
+    .buttons {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

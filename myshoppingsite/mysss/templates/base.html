@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Doğa's Shopping Site</title>
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <style>
+        /* Reset default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Navigation styles */
+        nav ul {
+            list-style-type: none;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        /* Main content styles */
+        main {
+            padding: 20px;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Button styles */
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Add your JavaScript links and other scripts here */
+    </style>
+</head>
+<body>
+    <header>
+
+        <h1>Doğa's Shopping Site</h1>
+
+        {% if user.is_authenticated %}
+        <nav>
+            <ul>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'my_cart' %}">My Cart</a></li>
+                <li><a href="{% url 'purchases' %}">Purchases</a></li>
+
+            </ul>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="position: absolute; top: 10px; right: 10px;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        {% endif %}
+    </header>
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+
+        <p>&copy; Doğa's Shopping Site. All rights reserved.</p>
+    </footer>
+
+
+</body>
+</html>
